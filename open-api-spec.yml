@@ -1,0 +1,238 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Group Settings API",
+    "description": "API for managing group-level settings using JSON:API format.",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/groups/{groupId}/settings": {
+      "get": {
+        "summary": "Get all group settings",
+        "description": "Retrieve all settings for a specific group in JSON:API format.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the group"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved all settings",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/GroupSetting" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create a new group setting",
+        "description": "Add a new setting for the specified group in JSON:API format.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the group"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/GroupSettingCreate"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Setting created successfully",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/GroupSetting"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input" }
+        }
+      }
+    },
+    "/groups/{groupId}/settings/{settingKey}": {
+      "get": {
+        "summary": "Get a specific group setting",
+        "description": "Retrieve the value and type of a specific group-level setting in JSON:API format.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the group"
+          },
+          {
+            "name": "settingKey",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "The key of the setting to retrieve"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully retrieved the setting",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/GroupSetting"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": { "description": "Setting not found" }
+        }
+      },
+      "patch": {
+        "summary": "Update an existing group setting",
+        "description": "Update the value of an existing group-level setting in JSON:API format.",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "ID of the group"
+          },
+          {
+            "name": "settingKey",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "The key of the setting to update"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/vnd.api+json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "data": {
+                    "$ref": "#/components/schemas/GroupSettingUpdate"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Setting updated successfully",
+            "content": {
+              "application/vnd.api+json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/components/schemas/GroupSetting"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid input" },
+          "404": { "description": "Setting not found" }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "GroupSetting": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["group-settings"] },
+          "id": { "type": "string" },
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "groupId": { "type": "integer" },
+              "settingKey": { "type": "string" },
+              "settingValue": { "type": "string" },
+              "valueType": { "type": "string", "enum": ["int", "decimal", "json", "string"] },
+              "createdBy": { "type": "integer" },
+              "lastUpdatedBy": { "type": "integer" },
+              "createdDate": { "type": "string", "format": "date-time" },
+              "lastUpdatedDate": { "type": "string", "format": "date-time" }
+            }
+          }
+        }
+      },
+      "GroupSettingCreate": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["group-settings"] },
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "settingKey": { "type": "string" },
+              "settingValue": { "type": "string" },
+              "valueType": { "type": "string", "enum": ["int", "decimal", "json", "string"] },
+              "createdBy": { "type": "integer" }
+            },
+            "required": ["settingKey", "settingValue", "valueType", "createdBy"]
+          }
+        }
+      },
+      "GroupSettingUpdate": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["group-settings"] },
+          "attributes": {
+            "type": "object",
+            "properties": {
+              "settingValue": { "type": "string" },
+              "valueType": { "type": "string", "enum": ["int", "decimal", "json", "string"] },
+              "lastUpdatedBy": { "type": "integer" }
+            },
+            "required": ["settingValue", "valueType", "lastUpdatedBy"]
+          }
+        }
+      }
+    }
+  }
+}
