@@ -1,0 +1,24 @@
+Table Groups {
+    GroupId int [pk, note: "Primary Key"]
+    GroupName varchar
+}
+
+Table GroupSettings {
+    GroupId int [ref: > Groups.GroupId, note: "Foreign Key to Groups"]
+    SettingKey varchar [pk, note: "Primary Key"]
+    SettingValue clob
+    ValueType varchar
+    CreatedBy int
+    CreatedDate timestamp
+    LastUpdatedDate timestamp
+}
+
+Table GroupSettingsAudit {
+    AuditId int [pk, increment, note: "Primary Key (Auto Increment)"]
+    GroupId int [ref: > Groups.GroupId, note: "Foreign Key to Groups"]
+    SettingKey varchar
+    OldValue clob
+    NewValue clob
+    ChangedBy int
+    ChangedDate timestamp
+}
