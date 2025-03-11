@@ -11,11 +11,17 @@ servers:
 security:
   - BearerAuth: []
 
+tags:
+  - name: "Firm Settings"
+    description: "Operations related to managing firm settings"
+
 paths:
   /api/firm-settings:
     get:
       summary: Get all firm settings
       description: Retrieves all settings for the authenticated firm. Supports filtering by `SettingsKey` and `GroupKey`.
+      tags:
+        - "Firm Settings"
       parameters:
         - name: SettingsKey
           in: query
@@ -47,6 +53,8 @@ paths:
     post:
       summary: Create a new firm setting
       description: Creates a new firm setting. The FirmId, CreatedBy, and timestamps are derived from the authentication token.
+      tags:
+        - "Firm Settings"
       requestBody:
         required: true
         content:
@@ -66,9 +74,42 @@ paths:
         "500": { $ref: "#/components/responses/InternalServerError" }
 
   /api/firm-settings/{GroupKey}/{SettingsKey}:
+    get:
+      summary: Get a specific firm setting
+      description: Retrieves a single firm setting based on `GroupKey` and `SettingsKey`. Returns 404 if not found.
+      tags:
+        - "Firm Settings"
+      parameters:
+        - name: GroupKey
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The group key associated with the setting.
+        - name: SettingsKey
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The setting key to retrieve.
+      responses:
+        "200":
+          description: Setting retrieved successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: "#/components/schemas/FirmSetting"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
     patch:
       summary: Update an existing firm setting
       description: Updates a firm setting. The FirmId, UpdatedBy, and timestamps are derived from the authentication token.
+      tags:
+        - "Firm Settings"
       parameters:
         - name: GroupKey
           in: path
@@ -104,6 +145,8 @@ paths:
     delete:
       summary: Delete a firm setting
       description: Deletes a setting using `GroupKey` and `SettingsKey`.
+      tags:
+        - "Firm Settings"
       parameters:
         - name: GroupKey
           in: path
@@ -199,47 +242,11 @@ components:
   responses:
     BadRequest:
       description: Invalid request
-      content:
-        application/vnd.api+json:
-          schema:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    title:
-                      type: string
-                      example: "Bad Request"
-                    detail:
-                      type: string
-                      example: "Invalid request parameters."
-
     Unauthorized:
       description: Unauthorized
-
     Forbidden:
       description: Forbidden
-
     NotFound:
       description: Not Found
-
     InternalServerError:
       description: Server error
-      content:
-        application/vnd.api+json:
-          schema:
-            type: object
-            properties:
-              errors:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    title:
-                      type: string
-                      example: "Internal Server Error"
-                    detail:
-                      type: string
-                      example: "An unexpected error occurred."
