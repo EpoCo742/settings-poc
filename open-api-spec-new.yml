@@ -1,0 +1,245 @@
+openapi: 3.0.1
+info:
+  title: Firm Settings API
+  description: API for managing firm-level settings in JSON:API format.
+  version: 1.0.0
+
+servers:
+  - url: https://api.yourdomain.com
+    description: Production Server
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/firm-settings:
+    get:
+      summary: Get all firm settings
+      description: Retrieves all settings for the authenticated firm. Supports filtering by `SettingsKey` and `GroupKey`.
+      parameters:
+        - name: SettingsKey
+          in: query
+          schema:
+            type: string
+          description: Filter by SettingsKey (optional).
+        - name: GroupKey
+          in: query
+          schema:
+            type: string
+          description: Filter by GroupKey (optional).
+      responses:
+        "200":
+          description: Settings retrieved successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FirmSetting"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+    post:
+      summary: Create a new firm setting
+      description: Creates a new firm setting. The FirmId, CreatedBy, and timestamps are derived from the authentication token.
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: "#/components/schemas/FirmSettingCreate"
+      responses:
+        "201":
+          description: Setting created successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: "#/components/schemas/FirmSetting"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /api/firm-settings/{GroupKey}/{SettingsKey}:
+    patch:
+      summary: Update an existing firm setting
+      description: Updates a firm setting. The FirmId, UpdatedBy, and timestamps are derived from the authentication token.
+      parameters:
+        - name: GroupKey
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The group key associated with the setting.
+        - name: SettingsKey
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The setting key to update.
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: "#/components/schemas/FirmSettingUpdate"
+      responses:
+        "200":
+          description: Setting updated successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: "#/components/schemas/FirmSetting"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+    delete:
+      summary: Delete a firm setting
+      description: Deletes a setting using `GroupKey` and `SettingsKey`.
+      parameters:
+        - name: GroupKey
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The group key associated with the setting.
+        - name: SettingsKey
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The setting key to delete.
+      responses:
+        "200":
+          description: Setting deleted successfully
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+  schemas:
+    FirmSetting:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ["firm-settings"]
+        id:
+          type: string
+        attributes:
+          type: object
+          properties:
+            SettingsKey:
+              type: string
+            GroupKey:
+              type: string
+            SettingValue:
+              type: string
+              nullable: true
+            CreatedBy:
+              type: string
+            CreatedDate:
+              type: string
+              format: date-time
+            LastUpdatedBy:
+              type: string
+              nullable: true
+            LastUpdatedDate:
+              type: string
+              format: date-time
+              nullable: true
+
+    FirmSettingCreate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ["firm-settings"]
+        attributes:
+          type: object
+          properties:
+            SettingsKey:
+              type: string
+            GroupKey:
+              type: string
+            SettingValue:
+              type: string
+              nullable: true
+          required: ["SettingsKey", "GroupKey"]
+
+    FirmSettingUpdate:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ["firm-settings"]
+        attributes:
+          type: object
+          properties:
+            SettingValue:
+              type: string
+              nullable: true
+          required: ["SettingValue"]
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: "Bad Request"
+                    detail:
+                      type: string
+                      example: "Invalid request parameters."
+
+    Unauthorized:
+      description: Unauthorized
+
+    Forbidden:
+      description: Forbidden
+
+    NotFound:
+      description: Not Found
+
+    InternalServerError:
+      description: Server error
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: "Internal Server Error"
+                    detail:
+                      type: string
+                      example: "An unexpected error occurred."
