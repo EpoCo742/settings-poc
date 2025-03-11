@@ -50,29 +50,6 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
         "500": { $ref: "#/components/responses/InternalServerError" }
 
-    post:
-      summary: Create a new firm setting
-      description: Creates a new firm setting. The FirmId, CreatedBy, and timestamps are derived from the authentication token.
-      tags:
-        - "Firm Settings"
-      requestBody:
-        required: true
-        content:
-          application/vnd.api+json:
-            schema:
-              $ref: "#/components/schemas/FirmSettingCreate"
-      responses:
-        "201":
-          description: Setting created successfully
-          content:
-            application/vnd.api+json:
-              schema:
-                $ref: "#/components/schemas/FirmSetting"
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "401": { $ref: "#/components/responses/Unauthorized" }
-        "403": { $ref: "#/components/responses/Forbidden" }
-        "500": { $ref: "#/components/responses/InternalServerError" }
-
   /api/firm-settings/{GroupKey}/{SettingsKey}:
     get:
       summary: Get a specific firm setting
@@ -242,11 +219,47 @@ components:
   responses:
     BadRequest:
       description: Invalid request
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: "Bad Request"
+                    detail:
+                      type: string
+                      example: "Invalid request parameters."
+
     Unauthorized:
       description: Unauthorized
+
     Forbidden:
       description: Forbidden
+
     NotFound:
       description: Not Found
+
     InternalServerError:
       description: Server error
+      content:
+        application/vnd.api+json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      example: "Internal Server Error"
+                    detail:
+                      type: string
+                      example: "An unexpected error occurred."
