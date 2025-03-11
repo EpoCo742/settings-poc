@@ -50,6 +50,29 @@ paths:
         "403": { $ref: "#/components/responses/Forbidden" }
         "500": { $ref: "#/components/responses/InternalServerError" }
 
+    post:
+      summary: Create a new firm setting
+      description: Creates a new firm setting. The FirmId, CreatedBy, and timestamps are derived from the authentication token.
+      tags:
+        - "Firm Settings"
+      requestBody:
+        required: true
+        content:
+          application/vnd.api+json:
+            schema:
+              $ref: "#/components/schemas/FirmSettingCreate"
+      responses:
+        "201":
+          description: Setting created successfully
+          content:
+            application/vnd.api+json:
+              schema:
+                $ref: "#/components/schemas/FirmSetting"
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
   /api/firm-settings/{GroupKey}/{SettingsKey}:
     get:
       summary: Get a specific firm setting
